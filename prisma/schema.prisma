@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Administrator {
+  id        String  @id @default(cuid())
+  username  String? @unique
+  password  String?
+  dpName    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String  @id @default(cuid())
+  name      String? @db.Text
+  lokasi    Lokasi? @relation(fields: [lokasiId], references: [id], onDelete: Cascade)
+  lokasiId  String?
+  absensi   Absensi[]
+  statusKeanggotaan String?
+  cardFront Bytes?
+  trackDownloads Int? @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Giat {
+  id        String  @id @default(cuid())
+  name      String? @db.Text
+  lokasi    Lokasi? @relation(fields: [lokasiId], references: [id], onDelete: Cascade)
+  lokasiId  String?
+  waktu    DateTime?
+  absensi   Absensi[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lokasi {
+  id        String  @id @default(cuid())
+  name      String? @db.Text
+  users     User[]
+  giat      Giat[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Absensi {
+  id        String  @id @default(cuid())
+  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  giat      Giat?   @relation(fields: [giatId], references: [id], onDelete: Cascade)
+  giatId    String?
+  status    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
