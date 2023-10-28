@@ -48,9 +48,11 @@ export default function ScannerView() {
         }}
         constraints={
           {
-            // video: {
-            //   facingMode: "environment",
-            // },
+            video: {
+              facingMode: {
+                exact: "environment",
+              },
+            },
           } as any
         }
       />
