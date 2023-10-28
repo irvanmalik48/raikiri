@@ -46,15 +46,9 @@ export default function ScannerView() {
         onError={(err) => {
           console.log(err);
         }}
-        constraints={
-          {
-            video: {
-              facingMode: {
-                exact: "environment",
-              },
-            },
-          } as any
-        }
+        constraints={{
+          facingMode: "environment",
+        }}
       />
       <p className="text-center">
         Silahkan scan kode QR di kartu jama&apos;ah sebagai tanda kehadiran di
