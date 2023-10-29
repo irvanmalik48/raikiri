@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -14,19 +14,19 @@ model Administrator {
   id        String  @id @default(cuid())
   username  String? @unique
   password  String?
-  dpName    String?
+  role      String? @default("scanner")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model User {
   id        String  @id @default(cuid())
-  name      String? @db.Text
+  name      String?
   lokasi    Lokasi? @relation(fields: [lokasiId], references: [id], onDelete: Cascade)
   lokasiId  String?
   absensi   Absensi[]
   statusKeanggotaan String?
-  cardFront Bytes?
+  cardUrl   String?
   trackDownloads Int? @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -34,7 +34,7 @@ model User {
 
 model Giat {
   id        String  @id @default(cuid())
-  name      String? @db.Text
+  name      String?
   lokasi    Lokasi? @relation(fields: [lokasiId], references: [id], onDelete: Cascade)
   lokasiId  String?
   waktu    DateTime?
@@ -45,7 +45,7 @@ model Giat {
 
 model Lokasi {
   id        String  @id @default(cuid())
-  name      String? @db.Text
+  name      String?
   users     User[]
   giat      Giat[]
   createdAt DateTime @default(now())
