@@ -21,7 +21,7 @@ export default function RootLayout({
         <MainLayout>{children}</MainLayout>
         <footer className="w-full bg-black py-3 px-5">
           <p className="text-white text-center">
-            2023 &copy; Jama&apos;ah Pondok Peta Kabupaten Kediri
+            2023 &copy; Jama&apos;ah PETA Kabupaten Kediri
           </p>
         </footer>
       </body>

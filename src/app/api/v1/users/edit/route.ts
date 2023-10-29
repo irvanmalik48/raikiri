@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
         justify-content: center;
       "
     >
-      JAMA&apos;AH PONDOK PETA<br />KABUPATEN KEDIRI
+      JAMA'AH PONDOK PETA<br />KABUPATEN KEDIRI
     </p>
   </div>
   <div
@@ -293,6 +293,13 @@ export async function POST(req: NextRequest) {
 
   const frontPng = front.asPng();
 
+  await fs.unlink(`${process.cwd()}/public/uploads/images/${data.id}.png`);
+
+  await fs.writeFile(
+    `${process.cwd()}/public/uploads/images/${data.id}.png`,
+    frontPng
+  );
+
   const renewedUser = await prisma.user.update({
     where: {
       id: data.id,
@@ -314,7 +321,6 @@ export async function POST(req: NextRequest) {
         },
       },
       statusKeanggotaan: data.statusName.toUpperCase(),
-      cardFront: frontPng,
     },
     include: {
       lokasi: true,

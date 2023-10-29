@@ -5,7 +5,7 @@ function getUserByCUID(cuid: string) {
   return prisma.user.findUnique({
     where: { id: cuid },
     select: {
-      cardFront: false,
+      cardUrl: true,
       name: true,
       id: true,
       lokasi: true,
@@ -18,7 +18,7 @@ function getUserByCUID(cuid: string) {
 function getUsers() {
   return prisma.user.findMany({
     select: {
-      cardFront: false,
+      cardUrl: true,
       name: true,
       id: true,
       lokasi: true,

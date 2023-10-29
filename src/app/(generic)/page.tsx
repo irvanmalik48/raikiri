@@ -53,8 +53,8 @@ export default function Home() {
       </div>
       <Separator />
       <p>
-        Selamat datang di Sistem Absensi Jama&apos;ah Pondok. Silahkan pilih
-        menu dibawah ini.
+        Selamat datang di Sistem Absensi Jama&apos;ah PETA Kabupaten Kediri.
+        Silahkan pilih menu dibawah ini.
       </p>
       <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-3xl gap-5 py-5">
         {links.map((link, i) => (

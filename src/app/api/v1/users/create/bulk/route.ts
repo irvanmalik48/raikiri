@@ -12,13 +12,6 @@ export async function POST(req: NextRequest) {
   const loaded = await workbook.xlsx.load(buffer);
   const worksheet = loaded.worksheets[0];
 
-  const allLokasi = await prisma.lokasi.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-  });
-
   const data = () => {
     let data: {
       name: string;

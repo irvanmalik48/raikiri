@@ -1,11 +1,13 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/prisma";
+import fs from "fs/promises";
+import JSZip from "jszip";
 
 async function getUserByCUID(cuid: string) {
   const buf = await prisma.user.findUnique({
     where: { id: cuid },
     select: {
-      cardFront: true,
+      cardUrl: true,
       name: true,
       id: false,
       lokasi: true,
@@ -25,7 +27,9 @@ async function getUserByCUID(cuid: string) {
     },
   });
 
-  return buf?.cardFront?.toJSON();
+  const getFile = await fs.readFile(`${process.cwd()}${buf?.cardUrl}`);
+
+  return getFile;
 }
 
 async function getUserByIds(ids: string[]) {
@@ -36,7 +40,7 @@ async function getUserByIds(ids: string[]) {
       },
     },
     select: {
-      cardFront: true,
+      cardUrl: true,
       name: true,
       id: true,
       lokasi: true,
@@ -58,21 +62,23 @@ async function getUserByIds(ids: string[]) {
     },
   });
 
-  return bufs.map((buf) => ({
-    id: buf.id,
-    content: {
-      name: buf.name,
-      lokasi: buf.lokasi?.name,
-      statusKeanggotaan: buf.statusKeanggotaan,
-    },
-    card: buf.cardFront?.toJSON(),
-  }));
+  const zip = new JSZip();
+
+  for (let i = 0; i < bufs.length; i++) {
+    const getFile = await fs.readFile(`${process.cwd()}${bufs[i].cardUrl}`);
+    zip.file(
+      `${bufs[i].name}-${bufs[i].lokasi?.name}-${bufs[i].statusKeanggotaan}.png`,
+      getFile
+    );
+  }
+
+  return zip.generateAsync({ type: "nodebuffer" });
 }
 
 async function getUsers() {
   const bufs = await prisma.user.findMany({
     select: {
-      cardFront: true,
+      cardUrl: true,
       name: true,
       id: true,
       lokasi: true,
@@ -94,15 +100,17 @@ async function getUsers() {
     },
   });
 
-  return bufs.map((buf) => ({
-    id: buf.id,
-    content: {
-      name: buf.name,
-      lokasi: buf.lokasi?.name,
-      statusKeanggotaan: buf.statusKeanggotaan,
-    },
-    card: buf.cardFront?.toJSON(),
-  }));
+  const zip = new JSZip();
+
+  for (let i = 0; i < bufs.length; i++) {
+    const getFile = await fs.readFile(`${process.cwd()}${bufs[i].cardUrl}`);
+    zip.file(
+      `${bufs[i].name}-${bufs[i].lokasi?.name}-${bufs[i].statusKeanggotaan}.png`,
+      getFile
+    );
+  }
+
+  return zip.generateAsync({ type: "nodebuffer" });
 }
 
 export async function POST(req: NextRequest) {
@@ -110,23 +118,20 @@ export async function POST(req: NextRequest) {
 
   if (jsonData.cuid) {
     const user = await getUserByCUID(jsonData.cuid);
-    return new Response(
-      user?.type === "Buffer" ? Buffer.from(user.data) : null,
-      {
-        headers: { "content-type": "image/png" },
-      }
-    );
+    return new Response(user, {
+      headers: { "content-type": "image/png" },
+    });
   } else if (jsonData.ids) {
     const users = await getUserByIds(
       jsonData.ids.filter((id: string) => id !== null)
     );
-    return new Response(JSON.stringify(users), {
-      headers: { "content-type": "application/json" },
+    return new Response(users, {
+      headers: { "content-type": "application/zip" },
     });
   } else {
     const users = await getUsers();
-    return new Response(JSON.stringify(users), {
-      headers: { "content-type": "application/json" },
+    return new Response(users, {
+      headers: { "content-type": "application/zip" },
     });
   }
 }

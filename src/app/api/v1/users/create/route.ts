@@ -7,6 +7,7 @@ import { Resvg } from "@resvg/resvg-js";
 import QRCode from "qrcode";
 import fs from "fs/promises";
 import { ReactNode } from "react";
+import { checkDir } from "@/server/fs";
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -191,7 +192,7 @@ export async function POST(req: NextRequest) {
         justify-content: center;
       "
     >
-      JAMA&apos;AH PONDOK PETA<br />KABUPATEN KEDIRI
+      JAMA'AH PONDOK PETA<br />KABUPATEN KEDIRI
     </p>
   </div>
   <div
@@ -311,12 +312,21 @@ export async function POST(req: NextRequest) {
 
   const frontPng = front.asPng();
 
+  if (!(await checkDir(`${process.cwd()}/uploads/images`))) {
+    await fs.mkdir(`${process.cwd()}/uploads/images`, { recursive: true });
+  }
+
+  await fs.writeFile(
+    `${process.cwd()}/uploads/images/${user.id}.png`,
+    frontPng
+  );
+
   const renewedUser = await prisma.user.update({
     where: {
       id: user.id,
     },
     data: {
-      cardFront: frontPng,
+      cardUrl: `/uploads/images/${user.id}.png`,
     },
     include: {
       lokasi: true,

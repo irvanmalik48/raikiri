@@ -1,7 +1,13 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/prisma";
+import fs from "fs/promises";
 
-function deleteUsers(users: string[]) {
+async function deleteUsers(users: string[]) {
+  // delete images
+  users.forEach(async (user) => {
+    await fs.unlink(`${process.cwd()}/uploads/images/${user}.png`);
+  });
+
   return prisma.user.deleteMany({
     where: {
       id: {
