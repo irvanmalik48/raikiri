@@ -29,11 +29,11 @@ export default function AddAnggotaForm() {
   return (
     <form className="py-5 flex flex-col gap-5 max-w-lg">
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">Nama Giat</span>
+        <span className="text-sm font-semibold">Nama Kegiatan</span>
         <input
           type="text"
           className="rounded-xl w-full px-3 py-2 border border-300"
-          placeholder="Silahkan masukkan nama giat yang akan dilaksanakan"
+          placeholder="Silahkan masukkan nama kegiatan yang akan dilaksanakan"
           onChange={(e) => setNama(e.target.value)}
         />
       </label>
@@ -53,7 +53,7 @@ export default function AddAnggotaForm() {
         </datalist>
       </label>
       <label className="flex flex-col w-full items-center justify-center gap-1">
-        <span className="text-sm font-semibold">Tanggal Giat</span>
+        <span className="text-sm font-semibold">Tanggal Kegiatan</span>
         <Calendar onChange={setWaktu} value={waktu} />
       </label>
       <button
@@ -89,7 +89,7 @@ export default function AddAnggotaForm() {
           router.push("/kegiatan");
         }}
       >
-        Tambah Anggota
+        Tambah Kegiatan
       </button>
     </form>
   );

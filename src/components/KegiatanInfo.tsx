@@ -25,11 +25,9 @@ const dataUserAtom = atom<
 export function FilterComponent({
   filterText,
   onFilter,
-  onClear,
 }: {
   filterText: string;
   onFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onClear: () => void;
 }) {
   const [data] = useAtom(dataUserAtom);
   const [dataKegiatan] = useAtom(dataKegiatanAtom);
@@ -45,13 +43,6 @@ export function FilterComponent({
         value={filterText}
         onChange={onFilter}
       />
-      <button
-        className="bg-red-900 hover:bg-red-800 transition text-white rounded-xl px-5 text-sm py-2 flex gap-2 items-center"
-        onClick={onClear}
-      >
-        <X size={16} />
-        <span>Clear</span>
-      </button>
       <button
         className="bg-black text-white rounded-xl px-5 text-sm py-2 flex gap-2 items-center"
         onClick={(e) => {
@@ -129,19 +120,19 @@ export function FilterComponent({
             ];
           });
 
-          const table = sheet.addTable({
-            name: "Anggota",
-            ref: "A7",
-            headerRow: true,
-            columns: [
-              { name: "No", filterButton: true },
-              { name: "Waktu", filterButton: true },
-              { name: "Nama Anggota", filterButton: true },
-              { name: "Titik Lokasi", filterButton: true },
-              { name: "Status Keanggotaan", filterButton: true },
-              { name: "Kehadiran", filterButton: true },
-            ],
-            rows: rows,
+          sheet.getRow(7).values = [
+            "NO",
+            "WAKTU",
+            "NAMA JAMA'AH",
+            "ASAL TITIK",
+            "STATUS KEANGGOTAAN",
+            "KEHADIRAN",
+          ];
+
+          const dataRows = sheet.getRows(8, rows.length + 1);
+
+          dataRows?.forEach((row, i) => {
+            row.values = rows[i];
           });
 
           sheet.getColumn(1).width = 5;
@@ -231,8 +222,7 @@ export function FilterComponent({
           };
 
           sheet.getCell("A1").value = "ABSENSI SELAPANAN";
-          sheet.getCell("A2").value =
-            "JAMA&apos;AH PONDOK PETA KABUPATEN KEDIRI";
+          sheet.getCell("A2").value = "JAMA'AH PONDOK PETA KABUPATEN KEDIRI";
           sheet.getCell("A4").value = `Lokasi: ${
             dataKegiatan?.lokasi?.name ?? "-"
           }`;
@@ -286,8 +276,6 @@ export function FilterComponent({
             };
           });
 
-          table.commit();
-
           spreadsheet.xlsx.writeBuffer().then((buffer) => {
             const blob = new Blob([buffer], {
               type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -310,7 +298,6 @@ export function FilterComponent({
 export default function UsersDataTable({ cuid }: { cuid: string }) {
   const [data, setData] = useAtom(dataUserAtom);
   const [filterName, setFilterName] = useState<string>("");
-  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [pending, setPending] = useState<boolean>(true);
 
   const [selectedRows, setSelectedRows] = useState<User[]>([]);
@@ -319,21 +306,13 @@ export default function UsersDataTable({ cuid }: { cuid: string }) {
   const router = useRouter();
 
   const subHeaderFilterCompMemo = useMemo(() => {
-    const handleClear = () => {
-      if (filterName) {
-        setResetPaginationToggle(!resetPaginationToggle);
-        setFilterName("");
-      }
-    };
-
     return (
       <FilterComponent
         onFilter={(e) => setFilterName(e.target.value)}
-        onClear={handleClear}
         filterText={filterName}
       />
     );
-  }, [filterName, resetPaginationToggle]);
+  }, [filterName]);
 
   const [dataKegiatan, setDataKegiatan] = useAtom(dataKegiatanAtom);
 
@@ -583,7 +562,6 @@ export default function UsersDataTable({ cuid }: { cuid: string }) {
         }
         pagination
         paginationPerPage={10}
-        paginationResetDefaultPage={resetPaginationToggle}
         subHeader
         subHeaderComponent={subHeaderFilterCompMemo}
         highlightOnHover

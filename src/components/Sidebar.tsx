@@ -5,11 +5,9 @@ import {
   LayoutDashboard,
   LogOut,
   Map,
-  Megaphone,
   PanelLeftClose,
   PanelLeftOpen,
   ScanBarcode,
-  Shapes,
   User,
   UserCircle,
 } from "lucide-react";
@@ -37,7 +35,7 @@ export default function Sidebar() {
     },
     {
       href: "/lokasi",
-      label: "Lokasi",
+      label: "Titik Lokasi",
       icon: Map,
     },
     {
@@ -84,7 +82,7 @@ export default function Sidebar() {
               <PanelLeftClose size={24} />
             </button>
             <h1 className="text-sm w-full font-semibold">
-              Sistem Absensi Jama&apos;ah Pondok
+              Sistem Absensi Jama&apos;ah PETA Kabupaten Kediri
             </h1>
           </div>
           <Separator />

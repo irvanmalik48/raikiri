@@ -19,11 +19,11 @@ export default function AddAnggotaForm({ cuid }: { cuid: string }) {
   return (
     <form className="py-5 flex flex-col gap-5 max-w-lg">
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">Nama Lokasi</span>
+        <span className="text-sm font-semibold">Nama Titik Lokasi</span>
         <input
           type="text"
           className="rounded-xl w-full px-3 py-2 border border-300"
-          placeholder="Silahkan masukkan nama lengkap anggota yang ingin diubah"
+          placeholder="Silahkan masukkan nama titik lokasi yang ingin diubah"
           onChange={(e) => setNama(e.target.value)}
           defaultValue={nama}
         />
@@ -51,7 +51,7 @@ export default function AddAnggotaForm({ cuid }: { cuid: string }) {
             .then((data) => {
               if (data.error) {
                 alert(
-                  "Gagal mengedit data! Pastikan nama lokasi tidak sama dengan nama lokasi lainnya!"
+                  "Gagal mengedit data! Pastikan nama titik lokasi tidak sama dengan nama lokasi lainnya!"
                 );
                 return;
               }

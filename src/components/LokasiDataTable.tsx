@@ -18,11 +18,9 @@ const lokasiAtom = atom<(Lokasi & { users: User[] })[]>([]);
 export function FilterComponent({
   filterText,
   onFilter,
-  onClear,
 }: {
   filterText: string;
   onFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onClear: () => void;
 }) {
   return (
     <div className="flex gap-3 flex-wrap">
@@ -35,13 +33,6 @@ export function FilterComponent({
         value={filterText}
         onChange={onFilter}
       />
-      <button
-        className="bg-red-900 hover:bg-red-800 transition text-white rounded-xl px-5 text-sm py-2 flex gap-2 items-center"
-        onClick={onClear}
-      >
-        <X size={16} />
-        <span>Clear</span>
-      </button>
       <Link
         href="/lokasi/add"
         className="bg-green-900 hover:bg-green-800 transition text-white rounded-xl px-5 text-sm py-2 flex gap-2 items-center"
@@ -56,28 +47,19 @@ export function FilterComponent({
 export default function UsersDataTable() {
   const [data, setData] = useAtom(lokasiAtom);
   const [filterName, setFilterName] = useState<string>("");
-  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [pending, setPending] = useState<boolean>(true);
 
   const [selectedRows, setSelectedRows] = useState<User[]>([]);
   const [toggleCleared, setToggleCleared] = useState(false);
 
   const subHeaderFilterCompMemo = useMemo(() => {
-    const handleClear = () => {
-      if (filterName) {
-        setResetPaginationToggle(!resetPaginationToggle);
-        setFilterName("");
-      }
-    };
-
     return (
       <FilterComponent
         onFilter={(e) => setFilterName(e.target.value)}
-        onClear={handleClear}
         filterText={filterName}
       />
     );
-  }, [filterName, resetPaginationToggle]);
+  }, [filterName]);
 
   const headerDeleteCompMemo = useMemo(() => {
     const handleDelete = async () => {
@@ -87,7 +69,7 @@ export default function UsersDataTable() {
 
       if (
         window.confirm(
-          "Apakah anda yakin ingin menghapus data? Seluruh data jama&apos;ah dan kegiatan yang terdapat dalam asal titik ini akan ikut terhapus! Jika anda yakin, klik OK."
+          "Apakah anda yakin ingin menghapus data? Seluruh data jama'ah dan kegiatan yang terdapat dalam asal titik ini akan ikut terhapus! Jika anda yakin, klik OK."
         )
       ) {
         await fetch(`/api/v1/lokasi/delete`, {
@@ -148,7 +130,7 @@ export default function UsersDataTable() {
       sortable: true,
     },
     {
-      name: "Jumlah Jama&apos;ah",
+      name: "Jumlah Jama'ah",
       selector: (row) => row.users.length as number,
       sortable: true,
     },
@@ -165,7 +147,6 @@ export default function UsersDataTable() {
       data={data || []}
       pagination
       paginationPerPage={10}
-      paginationResetDefaultPage={resetPaginationToggle}
       subHeader
       subHeaderComponent={subHeaderFilterCompMemo}
       highlightOnHover

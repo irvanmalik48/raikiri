@@ -54,7 +54,12 @@ export default function AddAnggotaForm() {
             className="rounded-xl w-full px-3 py-2 border border-300"
             placeholder="Silahkan masukkan status keanggotaan jama'ah"
             onChange={(e) => setStatusKeanggotaan(e.target.value)}
+            list="statusList"
           />
+          <datalist id="statusList">
+            <option value="Anggota SA78" />
+            <option value="Simpatisan" />
+          </datalist>
         </label>
         <button
           className="rounded-xl bg-black hover:bg-neutral-900 transition text-white py-2"

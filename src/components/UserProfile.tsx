@@ -1,25 +1,20 @@
-import prisma from "@/server/prisma";
+"use client";
+
 import { Edit, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import QRCode from "react-qr-code";
+import { useState, useEffect } from "react";
 
-export default async function UserProfile({ userId }: { userId: string }) {
-  const profileData = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      lokasi: true,
-    },
-  });
+export default function UserProfile({ userId }: { userId: string }) {
+  const [profileData, setProfileData] = useState<any>(null);
 
-  const bufferToBase64Image = (buffer: Buffer) => {
-    const base64String = buffer.toString("base64");
-    return `data:image/png;base64,${base64String}`;
-  };
-
-  const cardPhoto = profileData?.cardFront
-    ? bufferToBase64Image(profileData?.cardFront as Buffer)
-    : "";
+  useEffect(() => {
+    fetch(`/api/v1/users?cuid=${userId}&includeLokasi`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProfileData(data);
+      });
+  }, [userId]);
 
   return (
     <div className="flex lg:justify-end flex-row lg:flex-row-reverse gap-10 flex-wrap py-5">
@@ -81,7 +76,9 @@ export default async function UserProfile({ userId }: { userId: string }) {
           width={638}
           height={1011}
           className="max-w-[400px]"
-          src={cardPhoto}
+          src={`/api/v1/get-image?path=${encodeURIComponent(
+            profileData?.cardUrl
+          )}`}
           alt="Kartu Jama'ah"
         />
       </div>

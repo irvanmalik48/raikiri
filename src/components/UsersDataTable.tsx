@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import JSZip from "jszip";
 
 const dataAnggotaAtom = atom<
   (User & {
@@ -20,11 +19,9 @@ const lokasiAtom = atom<Lokasi[]>([]);
 export function FilterComponent({
   filterText,
   onFilter,
-  onClear,
 }: {
   filterText: string;
   onFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onClear: () => void;
 }) {
   const [data] = useAtom(dataAnggotaAtom);
   const [lokasi, setLokasi] = useAtom(lokasiAtom);
@@ -50,13 +47,6 @@ export function FilterComponent({
         value={filterText}
         onChange={onFilter}
       />
-      <button
-        className="bg-red-900 hover:bg-red-800 transition text-white rounded-xl px-5 text-sm py-2 flex gap-2 items-center"
-        onClick={onClear}
-      >
-        <X size={16} />
-        <span>Clear</span>
-      </button>
       <Link
         href="/anggota/add"
         className="bg-green-900 hover:bg-green-800 transition text-white rounded-xl px-5 text-sm py-2 flex gap-2 items-center"
@@ -104,21 +94,21 @@ export function FilterComponent({
             return [i + 1, name, lokasi?.name, statusKeanggotaan];
           });
 
-          const table = sheet.addTable({
-            name: "Anggota",
-            ref: "A6",
-            headerRow: true,
-            columns: [
-              { name: "No", filterButton: true },
-              { name: "Nama Anggota", filterButton: true },
-              { name: "Asal Titik", filterButton: true },
-              { name: "Status Keanggotaan", filterButton: true },
-            ],
-            rows: rows,
-          });
-
           const firstRowCell = 6;
           const lastRowCell = firstRowCell + rows.length + 1;
+
+          sheet.getRow(6).values = [
+            "NO",
+            "NAMA JAMA'AH",
+            "ASAL TITIK",
+            "STATUS KEANGGOTAAN",
+          ];
+
+          const dataRows = sheet.getRows(7, lastRowCell);
+
+          dataRows?.forEach((dataRow, i) => {
+            dataRow.values = rows[i];
+          });
 
           for (let i = firstRowCell; i < lastRowCell; i++) {
             sheet.getCell(`A${i}`).border = {
@@ -180,8 +170,7 @@ export function FilterComponent({
           };
 
           sheet.getCell("A1").value = "DAFTAR NAMA QR CODE BARU";
-          sheet.getCell("A2").value =
-            "JAMA&apos;AH PONDOK PETA KABUPATEN KEDIRI";
+          sheet.getCell("A2").value = "JAMA'AH PONDOK PETA KABUPATEN KEDIRI";
           sheet.getCell("A4").value = `Asal Titik : ${
             filterAsal === ""
               ? "Semua"
@@ -223,8 +212,6 @@ export function FilterComponent({
             };
           });
 
-          table.commit();
-
           spreadsheet.xlsx.writeBuffer().then((buffer) => {
             const blob = new Blob([buffer], {
               type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -247,7 +234,6 @@ export function FilterComponent({
 export default function UsersDataTable() {
   const [data, setData] = useAtom(dataAnggotaAtom);
   const [filterName, setFilterName] = useState<string>("");
-  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [pending, setPending] = useState<boolean>(true);
 
   const [selectedRows, setSelectedRows] = useState<User[]>([]);
@@ -256,21 +242,13 @@ export default function UsersDataTable() {
   const router = useRouter();
 
   const subHeaderFilterCompMemo = useMemo(() => {
-    const handleClear = () => {
-      if (filterName) {
-        setResetPaginationToggle(!resetPaginationToggle);
-        setFilterName("");
-      }
-    };
-
     return (
       <FilterComponent
         onFilter={(e) => setFilterName(e.target.value)}
-        onClear={handleClear}
         filterText={filterName}
       />
     );
-  }, [filterName, resetPaginationToggle]);
+  }, [filterName]);
 
   const headerDeleteCompMemo = useMemo(() => {
     const handleDelete = async () => {
@@ -293,36 +271,17 @@ export default function UsersDataTable() {
       const selectedRowsId = selectedRows.map((row) => row.id);
 
       if (window.confirm("Apakah anda yakin ingin mengexport kartu?")) {
-        const data: any = await fetch(`/api/v1/users/card`, {
+        const data = await fetch(`/api/v1/users/card`, {
           method: "POST",
           body: JSON.stringify({
             ids: selectedRowsId,
           }),
-        }).then((res) => res.json());
+        }).then((res) => res.blob());
 
-        const buffers = data.map((d: any) => Buffer.from(d.card));
-
-        const zip = new JSZip();
-
-        const fnt = data.map((d: any) => ({
-          lokasi: d.content.lokasi,
-          status: d.content.statusKeanggotaan,
-          name: d.content.name,
-        }));
-
-        buffers.forEach((buffer: any, i: number) => {
-          zip.file(
-            `${fnt[i].lokasi}-${fnt[i].status}-${fnt[i].name}.png`,
-            buffer
-          );
-        });
-
-        await zip.generateAsync({ type: "blob" }).then((content) => {
-          const a = document.createElement("a");
-          a.href = window.URL.createObjectURL(content);
-          a.download = `export-kartu-qr-${new Date().toISOString()}.zip`;
-          a.click();
-        });
+        const a = document.createElement("a");
+        a.href = window.URL.createObjectURL(data);
+        a.download = `export-kartu-qr-${new Date().toISOString()}.zip`;
+        a.click();
 
         setPending(true);
         setToggleCleared(!toggleCleared);
@@ -359,8 +318,15 @@ export default function UsersDataTable() {
           })[]
         ) => {
           setData(
-            data.filter((user) =>
-              user.name!.toLowerCase().includes(filterName.toLowerCase())
+            data.filter(
+              (user) =>
+                user.name!.toLowerCase().includes(filterName.toLowerCase()) ||
+                user
+                  .statusKeanggotaan!.toLowerCase()
+                  .includes(filterName.toLowerCase()) ||
+                user.lokasi
+                  ?.name!.toLowerCase()
+                  .includes(filterName.toLowerCase())
             )
           );
           setPending(false);
@@ -406,7 +372,6 @@ export default function UsersDataTable() {
       data={data || []}
       pagination
       paginationPerPage={10}
-      paginationResetDefaultPage={resetPaginationToggle}
       subHeader
       subHeaderComponent={subHeaderFilterCompMemo}
       highlightOnHover

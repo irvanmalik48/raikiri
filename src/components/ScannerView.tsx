@@ -21,7 +21,7 @@ export default function ScannerView() {
     <div className="flex flex-col bg-neutral-100 gap-5 mx-auto w-full max-w-xl items-center justify-center p-5 rounded-xl">
       <label className="w-full flex flex-col items-center gap-1 justify-center">
         <p className="w-full text-left font-semibold text-sm">
-          Pilih giat yang ingin diikuti oleh jama&apos;ah
+          Pilih kegiatan yang ingin diikuti oleh jama&apos;ah
         </p>
         <select
           className="rounded-xl w-full px-3 py-2 border border-300"
@@ -86,7 +86,7 @@ export default function ScannerView() {
           }
         }}
       >
-        Submit Kehadiran
+        Scan Kehadiran
       </button>
     </div>
   );
