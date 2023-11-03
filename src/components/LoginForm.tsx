@@ -60,6 +60,10 @@ export default function LoginForm() {
           const data = await res.json();
 
           if (data.auth) {
+            if (data.role === "scanner") {
+              router.push("/scanner");
+              return;
+            }
             router.push("/");
           } else {
             alert("Username atau password salah");

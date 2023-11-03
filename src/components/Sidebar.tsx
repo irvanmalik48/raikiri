@@ -13,11 +13,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Separator from "./Separator";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [admin, setAdmin] = useState<any>({});
   const links = [
     {
       href: "/",
@@ -50,27 +49,6 @@ export default function Sidebar() {
       icon: UserCircle,
     },
   ];
-
-  useEffect(() => {
-    // get the token= value from the cookie
-    const cookies = document.cookie.split(";");
-    const token = cookies
-      .filter((item) => item.includes("token="))
-      .map((item) => item.split("=")[1])[0];
-
-    const formData = new FormData();
-
-    formData.append("token", token);
-
-    fetch("/api/v1/admin/authenticate/verify", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setAdmin(data);
-      });
-  }, []);
 
   return (
     <>
@@ -109,24 +87,16 @@ export default function Sidebar() {
           </div>
           <Separator />
           <div className="grid grid-cols-2 lg:grid-cols-1 w-full gap-3">
-            {links
-              .filter((item) => {
-                if (admin.role === "scanner") {
-                  return item.label === "Scanner";
-                } else {
-                  return true;
-                }
-              })
-              .map((link, i) => (
-                <Link
-                  className="flex justify-start w-full items-center px-3 py-2 hover:text-white hover:bg-black transition text-sm gap-5 rounded-xl"
-                  href={link.href}
-                  key={i}
-                >
-                  <link.icon size={24} />
-                  <p>{link.label}</p>
-                </Link>
-              ))}
+            {links.map((link, i) => (
+              <Link
+                className="flex justify-start w-full items-center px-3 py-2 hover:text-white hover:bg-black transition text-sm gap-5 rounded-xl"
+                href={link.href}
+                key={i}
+              >
+                <link.icon size={24} />
+                <p>{link.label}</p>
+              </Link>
+            ))}
             <button
               className="flex justify-start w-full items-center px-3 py-2 hover:text-white hover:bg-black transition text-sm gap-5 rounded-xl"
               onClick={async (e) => {
