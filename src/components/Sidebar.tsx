@@ -52,7 +52,20 @@ export default function Sidebar() {
   ];
 
   useEffect(() => {
-    fetch("/api/v1/admin/authenticate/verify")
+    // get the token= value from the cookie
+    const cookies = document.cookie.split(";");
+    const token = cookies
+      .filter((item) => item.includes("token="))
+      .map((item) => item.split("=")[1])[0];
+
+    const formData = new FormData();
+
+    formData.append("token", token);
+
+    fetch("/api/v1/admin/authenticate/verify", {
+      method: "POST",
+      body: formData,
+    })
       .then((res) => res.json())
       .then((data) => {
         setAdmin(data);
