@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import ExcelJS from "exceljs";
-import prisma from "@/server/prisma";
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -45,10 +44,18 @@ export async function POST(req: NextRequest) {
     form.append("lokasi", allUser[i].lokasi);
     form.append("statusName", allUser[i].statusName);
 
-    const send = await fetch("http://localhost:3000/api/v1/users/create", {
-      method: "POST",
-      body: form,
-    });
+    const send = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_URL || "http://localhost:3000"
+      }/api/v1/users/create`,
+      {
+        method: "POST",
+        body: form,
+        headers: {
+          origin: "http://localhost:3000",
+        },
+      }
+    );
 
     res.push(await send.json());
   }

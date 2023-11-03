@@ -42,33 +42,26 @@ export default function ScannerView() {
           aspectRatio: "1/1",
           borderRadius: "0.5rem",
         }}
-        onDecode={(data) => setScannedData(data)}
-        onError={(err) => {
-          console.log(err);
-        }}
-        constraints={{
-          facingMode: "environment",
-        }}
-      />
-      <p className="text-center">
-        Silahkan scan kode QR di kartu jama&apos;ah sebagai tanda kehadiran di
-        giat yang dipilih.
-      </p>
-      <button
-        disabled={typeof scannedData !== "string"}
-        className="rounded-xl w-full text-center bg-black disabled:opacity-75 hover:bg-neutral-900 transition text-white py-2"
-        onClick={async () => {
-          const data = {
-            userId: scannedData,
+        scanDelay={500}
+        onDecode={async (data) => {
+          if (selectedId === "") {
+            alert("Silahkan pilih kegiatan terlebih dahulu");
+            return;
+          }
+
+          setScannedData(data);
+
+          const parsedData = {
+            userId: data,
             giatId: selectedId,
             status: "HADIR",
           };
 
           const form = new FormData();
 
-          form.append("userId", data.userId as string);
-          form.append("giatId", data.giatId);
-          form.append("status", data.status);
+          form.append("userId", parsedData.userId as string);
+          form.append("giatId", parsedData.giatId);
+          form.append("status", parsedData.status);
 
           const submit = await fetch(`/api/v1/absensi/create`, {
             method: "POST",
@@ -85,9 +78,17 @@ export default function ScannerView() {
             setSelectedId("");
           }
         }}
-      >
-        Scan Kehadiran
-      </button>
+        onError={(err) => {
+          console.log(err);
+        }}
+        constraints={{
+          facingMode: "environment",
+        }}
+      />
+      <p className="text-center">
+        Silahkan scan kode QR di kartu jama&apos;ah sebagai tanda kehadiran di
+        giat yang dipilih.
+      </p>
     </div>
   );
 }
