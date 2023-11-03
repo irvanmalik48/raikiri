@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
   return new Response(
     JSON.stringify({
       auth: true,
+      role: adminData.role,
     }),
     {
       headers: {
