@@ -31,6 +31,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
+    if (data.role === "scanner") {
+      return NextResponse.redirect(new URL("/scanner", request.url));
+    }
+
     return NextResponse.next();
   }
 
